@@ -1,7 +1,7 @@
 {
   "name": "vso-activity",
   "version": "0.0.0",
-  "description": "",
+  "description": "Get an activity report from a VSO account",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
