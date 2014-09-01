@@ -1,0 +1,28 @@
+{
+  "name": "vso-activity",
+  "version": "0.0.0",
+  "description": "Get an activity report from a VSO account",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:itsananderson/vso-activity.git"
+  },
+  "keywords": [
+    "vso",
+    "git"
+  ],
+  "author": "Will Anderson",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/itsananderson/vso-activity/issues"
+  },
+  "homepage": "https://github.com/itsananderson/vso-activity",
+  "dependencies": {
+    "nodegit": "^0.1.4",
+    "async": "^0.9.0"
+  }
+}
