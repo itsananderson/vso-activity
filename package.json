@@ -22,7 +22,6 @@
   },
   "homepage": "https://github.com/itsananderson/vso-activity",
   "dependencies": {
-    "nodegit": "^0.1.4",
     "async": "^0.9.0",
     "q": "^1.0.1",
     "rimraf": "^2.2.8",
