@@ -1,12 +1,13 @@
 var fs = require('fs'),
     path = require('path'),
-    repo = require('./lib/repo'),
-    async = require('async'),
+    repo = require('edge-git').repository,
     request = require('request');
 
 var username = process.env.VSOUserName;
 var password = process.env.VSOPassword;
 var vsoUrl = process.env.VSOUrl;
+
+console.log(vsoUrl);
 
 var basePath = path.join(__dirname, 'workspace');
 
@@ -23,11 +24,18 @@ if (process.argv[2] === 'upsert') {
             var dir = path.join(basePath, repository.project.name, repository.name);
             console.log(repository.project.name + '\t' + repository.name + ' => ' + repository.remoteUrl);
             if (fs.existsSync(dir)) {
-                console.log('update');
-                return repo.update(dir, 'origin').then(cloneNext).done();
+                return new repo(path.join(dir, '.git')).NetworkSync()
+                    .Fetch('origin', { credentials: { username: username, password: password } }, function(err, result) {
+                        if (err) throw err;
+                        console.log("Done fetching " + repository.project.name + '/' + repository.name);
+                        cloneNext();
+                    });
             } else {
-                console.log('clone');
-                return repo.clone(repository.remoteUrl, dir).then(cloneNext).done();
+                return repo.Clone(repository.remoteUrl.replace(' ', '%20'), dir, { credentials: { username: username, password: password } }, function(err, result) {
+                    if (err) throw err;
+                    console.log("done cloning " + repository.project.name + '/' + repository.name);
+                    cloneNext();
+                });
             }
         }
 
@@ -38,13 +46,10 @@ if (process.argv[2] === 'upsert') {
 if (process.argv[2] === 'branches') {
     request.get({url: vsoUrl + '_apis/git/repositories', json: true}, function (err, response, body) {
         body.value.forEach(function(repository) {
-            repo.listBranches(path.join(basePath, repository.project.name, repository.name)).then(function(branches) {
-                console.log('=============');
-                console.log(repository.project.name, '/', repository.name);
-                console.log('=============\n');
-                console.log(branches);
-                console.log('\n\n\n\n');
-            }).done();
+            console.log("branches for " + repository.project.name + '/' + repository.name);
+            console.log(new repo(path.join(basePath, repository.project.name, repository.name)).BranchesSync().map(function(b) {
+                return b.Name;
+            }));
         });
     }).auth(username, password, true);
 }
