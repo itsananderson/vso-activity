@@ -7,8 +7,6 @@ var username = process.env.VSOUserName;
 var password = process.env.VSOPassword;
 var vsoUrl = process.env.VSOUrl;
 
-console.log(vsoUrl);
-
 var basePath = path.join(__dirname, 'workspace');
 
 if (process.argv[2] === 'upsert') {
