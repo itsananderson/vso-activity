@@ -12,7 +12,7 @@ var basePath = path.join(__dirname, 'workspace');
 if (process.argv[2] === 'upsert') {
     api.repositories(vsoUrl, username, password, function(err, repositories) {
         if (err) throw err;
-        repo.upsert(repositories, username, password, path.join(__dirname, 'workspace'), function (err) {
+        repo.upsert(repositories, username, password, basePath, function (err) {
             if (err) throw err;
             console.log("Done upserting");
         });
@@ -22,7 +22,7 @@ if (process.argv[2] === 'upsert') {
 if (process.argv[2] === 'branches') {
     api.repositories(vsoUrl, username, password, function(err, repositories) {
         if (err) throw err;
-        repo.branches(repositories, path.join(__dirname, 'workspace'), function(err, branches) {
+        repo.branches(repositories, basePath, function(err, branches) {
             if (err) throw err;
             console.log(branches);
         });
