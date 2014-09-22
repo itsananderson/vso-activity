@@ -22,13 +22,9 @@
   },
   "homepage": "https://github.com/itsananderson/vso-activity",
   "dependencies": {
-    "async": "^0.9.0",
-    "q": "^1.0.1",
-    "rimraf": "^2.2.8",
-    "shelljs": "^0.3.0",
     "request": "^2.42.0",
-    "mkdirp": "^0.5.0",
-    "edge-git": "^0.1.4"
+    "edge-git": "^0.1.4",
+    "express": "^4.9.4"
   },
   "devDependencies": {
     "mocha": "^1.21.4"
