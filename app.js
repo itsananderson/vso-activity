@@ -11,7 +11,7 @@ var bodyParser = require('body-parser');
 
 var username = process.env.VSOUserName;
 var password = process.env.VSOPassword;
-var vsoUrl = process.env.VSOUrl;
+var vsoUrl = process.env.VSOUrl; // https://foo.visualstudio.com/DefaultCollection/
 var basePath = path.join(__dirname, 'workspace');
 
 var app = express();
