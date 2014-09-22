@@ -25,7 +25,7 @@ function updateActivity() {
             if (err) throw err;
             console.log("Done upserting");
 
-            repo.branches(repositories, basePath, function(err, branches) {
+            repo.commits(repositories, basePath, function(err, branches) {
                 if (err) throw err;
                 activity = branches;
             });

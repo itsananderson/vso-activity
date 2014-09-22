@@ -1,18 +1,14 @@
 angular.module('vso-activity', [])
     .service('activitySvc', function($http) {
-        this.getActivity = function getActivity(who) {
+        this.getActivity = function getActivity() {
             return $http.get('/api/get-activity/').then(function(result) {
-                console.log(result);
-                return result;
+                console.log(result.data);
+                return result.data;
             });
         };
     })
     .controller('activityCtrl', function(activitySvc) {
         var vm = this;
-        vm.activity = [];
-        vm.getActivity = function getActivity(who) {
-            activitySvc.getActivity(who).then(function(result) {
-                vm.activity = result;
-            })
-        }
+        vm.allActivity = [];
+        activitySvc.getActivity().then(function(activity) { console.log(activity); vm.allActivity = activity });
     });
