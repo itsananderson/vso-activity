@@ -5,16 +5,17 @@
     <title>VSO Stats</title>
 </head>
 <body>
-    <div ng-controller="activityCtrl as vm">
-        <div ng-repeat="repo in vm.allActivity">
+    <div ng-controller="activityCtrl as activity">
+        <input type="text" ng-model="activity.filterSvc.filter" />
+        {{activity.filter}}
+        <div ng-repeat="repo in activity.allActivity">
             <h2>{{repo.project}}/{{repo.repository}}</h2>
             <ul>
-                <li ng-repeat="commit in repo.commits">
+                <li ng-repeat="commit in repo.commits | authorFilter">
                     <code>{{commit.Sha}}</code> {{commit.Message}}
                 </li>
             </ul>
         </div>
-        <button ng-click="vm.getActivity('will')" >Get Activity</button>
     </div>
     <script src="/javascripts/angular.min.js"></script>
     <script src="/app/index.js"></script>
