@@ -21,15 +21,26 @@ var activity = [];
 function updateActivity() {
     api.repositories(vsoUrl, username, password, function(err, repositories) {
         if (err) throw err;
-        repo.upsert(repositories, username, password, basePath, function (err) {
-            if (err) throw err;
-            console.log("Done upserting");
 
+        function upsert(cb) {
+            repo.upsert(repositories, username, password, basePath, function (err) {
+                if (err) cb(err);
+                console.log("Done upserting");
+                cb(null);
+            });
+        }
+
+        function commits(err) {
+            if (err) throw err;
             repo.commits(repositories, basePath, function(err, branches) {
                 if (err) throw err;
                 activity = branches;
             });
-        });
+        }
+
+        upsert(commits);
+        // To just do commits
+        //commits();
     });
 }
 
