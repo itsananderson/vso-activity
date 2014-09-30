@@ -12,7 +12,6 @@ angular.module('vso-activity', [])
     .filter('authorFilter', function(authorFilterSvc) {
         return function(commits) {
             var lowerSearch = authorFilterSvc.filter.toLowerCase();
-            console.log(commits);
             return Object.keys(commits).map(function(key) {
                 return commits[key];
             }).filter(function(commit) {
