@@ -6,7 +6,7 @@
 </head>
 <body>
     <div ng-controller="activityCtrl as activity">
-        <input type="text" ng-model="activity.filterSvc.filter" />
+        <input type="text" ng-model="activity.filterSvc.filter" ng-model-options="{debounce: 100}" />
         {{activity.filter}}
         <div ng-repeat="repo in activity.allActivity">
             <h2>{{repo.project}}/{{repo.repository}}</h2>
