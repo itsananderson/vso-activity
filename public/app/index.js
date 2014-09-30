@@ -25,9 +25,5 @@ angular.module('vso-activity', [])
         var vm = this;
         vm.allActivity = [];
         vm.filterSvc = authorFilterSvc;
-        vm.authorMatch= function filterMatch(value, index) {
-            console.log(arguments);
-            return -1 !== item.Sha.indexOf(vm.filter);
-        };
         activitySvc.getActivity().then(function(activity) { vm.allActivity = activity });
     });
