@@ -46,7 +46,9 @@ function updateActivity() {
 
 updateActivity();
 
-setInterval(updateActivity, 5 * 60 * 1000);
+var updateInterval = (parseInt(process.env.UPDATE_INTERVAL) || 5 ) * 60 * 1000;
+console.log(updateInterval);
+setInterval(updateActivity, updateInterval);
 
 if (process.argv[2] === 'upsert') {
     api.repositories(vsoUrl, username, password, function(err, repositories) {
