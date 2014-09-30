@@ -12,7 +12,7 @@
             <h2>{{repo.project}}/{{repo.repository}}</h2>
             <ul>
                 <li ng-repeat="commit in repo.commits | authorFilter">
-                    <code>{{commit.Sha}}</code> {{commit.Message}}
+                    <code>{{commit.Sha}}</code> {{commit.MessageShort}}
                 </li>
             </ul>
         </div>
