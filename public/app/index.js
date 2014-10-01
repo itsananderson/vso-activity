@@ -1,5 +1,10 @@
 angular.module('vso-activity', ['ngCookies'])
     .service('activitySvc', function($http) {
+        this.getVsoUrl = function getVsoUrl() {
+            return $http.get('/api/get-vso-url').then(function(result) {
+                return result.data.url;
+            });
+        };
         this.getActivity = function getActivity() {
             return $http.get('/api/get-activity/').then(function(result) {
                 return result.data;
@@ -31,6 +36,7 @@ angular.module('vso-activity', ['ngCookies'])
             loadActivity();
         };
         vm.showAuth = !$cookies.auth_token;
+        activitySvc.getVsoUrl().then(function(url) { vm.vsoUrl = url; }).catch(function() {});
 
         function loadActivity() {
             activitySvc.getActivity().then(function(activity) { vm.allActivity = activity }).catch(function() {});
