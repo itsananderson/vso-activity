@@ -90,6 +90,10 @@ if (process.argv[2] === 'upsert') {
         }
     });
 
+    app.get('/api/get-vso-url', function(req, res) {
+        res.send({url: vsoUrl});
+    });
+
     // catch 404 and forward to error handler
     app.use(function (req, res, next) {
         var err = new Error('Not Found');
