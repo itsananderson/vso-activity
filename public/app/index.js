@@ -1,4 +1,4 @@
-angular.module('vso-activity', [])
+angular.module('vso-activity', ['ngCookies'])
     .service('activitySvc', function($http) {
         this.getActivity = function getActivity() {
             return $http.get('/api/get-activity/').then(function(result) {
@@ -21,9 +21,22 @@ angular.module('vso-activity', [])
             });
         };
     })
-    .controller('activityCtrl', function(authorFilterSvc, activitySvc) {
+    .controller('activityCtrl', function(authorFilterSvc, activitySvc, $cookies) {
         var vm = this;
         vm.allActivity = [];
         vm.filterSvc = authorFilterSvc;
-        activitySvc.getActivity().then(function(activity) { vm.allActivity = activity });
+        vm.auth = function(token) {
+            $cookies.auth_token = token;
+            vm.showAuth = false;
+            loadActivity();
+        };
+        vm.showAuth = !$cookies.auth_token;
+
+        function loadActivity() {
+            activitySvc.getActivity().then(function(activity) { vm.allActivity = activity }).catch(function() {});
+        }
+
+        if (!vm.showAuth) {
+            loadActivity();
+        }
     });

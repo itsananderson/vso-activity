@@ -6,19 +6,28 @@
 </head>
 <body>
     <div ng-controller="activityCtrl as activity">
-        <label for="commit-filter">Filter By author or message</label>
-        <input id="commit-filter" type="text" ng-model="activity.filterSvc.filter" ng-model-options="{debounce: 100}" />
-        {{activity.filter}}
-        <div ng-repeat="repo in activity.allActivity">
-            <h2>{{repo.project}}/{{repo.repository}}</h2>
-            <ul>
-                <li ng-repeat="commit in repo.commits | authorFilter">
-                    <code>{{commit.Sha}}</code> {{commit.MessageShort}}
-                </li>
-            </ul>
+        <div ng-show="activity.showAuth">
+            <form ng-submit="activity.auth(token)">
+                <input type="text" ng-model="token" placeholder="token" />
+                <input type="submit" value="auth" />
+            </form>
+        </div>
+        <div ng-hide="activity.showAuth">
+            <label for="commit-filter">Filter By author or message</label>
+            <input id="commit-filter" type="text" ng-model="activity.filterSvc.filter" ng-model-options="{debounce: 100}" />
+            {{activity.filter}}
+            <div ng-repeat="repo in activity.allActivity">
+                <h2>{{repo.project}}/{{repo.repository}}</h2>
+                <ul>
+                    <li ng-repeat="commit in repo.commits | authorFilter">
+                        <code>{{commit.Sha}}</code> {{commit.MessageShort}}
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
     <script src="/javascripts/angular.min.js"></script>
+    <script src="/javascripts/angular-cookies.min.js"></script>
     <script src="/app/index.js"></script>
 </body>
 </html>
