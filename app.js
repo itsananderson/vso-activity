@@ -12,6 +12,7 @@ var bodyParser = require('body-parser');
 var username = process.env.VSOUserName;
 var password = process.env.VSOPassword;
 var vsoUrl = process.env.VSOUrl; // https://foo.visualstudio.com/DefaultCollection/
+var tokens = process.env.AUTH_TOKENS ? process.env.AUTH_TOKENS.split(',') : [];
 var basePath = path.join(__dirname, 'workspace');
 
 var app = express();
@@ -81,7 +82,12 @@ if (process.argv[2] === 'upsert') {
     app.use(express.static(path.join(__dirname, 'public')));
 
     app.get('/api/get-activity', function(req, res) {
-        res.send(activity);
+        var token = req.cookies.auth_token || req.headers.auth_token;
+        if (!token || -1 === tokens.indexOf(token)) {
+            res.send(401, 'You need to provide an auth token');
+        } else {
+            res.send(activity);
+        }
     });
 
     // catch 404 and forward to error handler
