@@ -57,28 +57,16 @@ function updateActivity() {
     });
 }
 
-updateActivity();
-
-logger.info(config.updateInterval);
-setInterval(updateActivity, config.updateInterval);
-
 if (process.argv[2] === 'upsert') {
-    api.repositories(config.vsoUrl, config.username, config.password, function(err, repositories) {
-        if (err) throw err;
-        repo.upsert(repositories, config.username, config.password, config.basePath, function (err) {
-            if (err) throw err;
-            logger.info("Done upserting");
-        });
-    });
+    require('./upsert')();
 } else if (process.argv[2] === 'branches') {
-    api.repositories(config.vsoUrl, config.username, config.password, function(err, repositories) {
-        if (err) throw err;
-        repo.branches(repositories, config.basePath, function(err, branches) {
-            if (err) throw err;
-            logger.info(branches);
-        });
-    });
+    require('./branches')();
 } else {
+
+    updateActivity();
+
+    logger.info(config.updateInterval);
+    setInterval(updateActivity, config.updateInterval);
 
     // view engine setup
     app.set('views', path.join(__dirname, 'views'));
