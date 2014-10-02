@@ -51,9 +51,7 @@ function updateActivity() {
             });
         }
 
-        //upsert(commits);
-        // To just do commits
-        commits();
+        config.skipUpsert ? commits() : upsert(commits);
     });
 }
 
