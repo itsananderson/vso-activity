@@ -4,7 +4,25 @@ var fs = require('fs'),
     repo = require('./lib/repo');
 
 var express = require('express');
-var logger = require('morgan');
+var bunyan = require('bunyan');
+var logger = bunyan.createLogger({
+    name: 'vso-activity',
+    serializers: bunyan.stdSerializers,
+    streams: [
+        {
+            level: 'info',
+            stream: process.stdout
+        },
+        {
+            level: 'error',
+            path: path.join(__dirname, 'error.log')
+        },
+        {
+            level: 'info',
+            path: path.join(__dirname, 'info.log')
+        }
+    ]
+});
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
@@ -23,31 +41,31 @@ function updateActivity() {
         if (err) throw err;
 
         function upsert(cb) {
-            repo.upsert(repositories, username, password, basePath, function (err) {
+            repo.upsert(repositories, username, password, basePath, logger, function (err) {
                 if (err) cb(err);
-                console.log("Done upserting");
+                logger.info("Done upserting");
                 cb(null);
             });
         }
 
         function commits(err) {
             if (err) throw err;
-            repo.commits(repositories, basePath, function(err, branches) {
+            repo.commits(repositories, basePath, logger, function(err, branches) {
                 if (err) throw err;
                 activity = branches;
             });
         }
 
-        upsert(commits);
+        //upsert(commits);
         // To just do commits
-        //commits();
+        commits();
     });
 }
 
 updateActivity();
 
 var updateInterval = (parseInt(process.env.UPDATE_INTERVAL) || 5 ) * 60 * 1000;
-console.log(updateInterval);
+logger.info(updateInterval);
 setInterval(updateActivity, updateInterval);
 
 if (process.argv[2] === 'upsert') {
@@ -55,7 +73,7 @@ if (process.argv[2] === 'upsert') {
         if (err) throw err;
         repo.upsert(repositories, username, password, basePath, function (err) {
             if (err) throw err;
-            console.log("Done upserting");
+            logger.info("Done upserting");
         });
     });
 } else if (process.argv[2] === 'branches') {
@@ -63,7 +81,7 @@ if (process.argv[2] === 'upsert') {
         if (err) throw err;
         repo.branches(repositories, basePath, function(err, branches) {
             if (err) throw err;
-            console.log(branches);
+            logger.info(branches);
         });
     });
 } else {
@@ -74,7 +92,10 @@ if (process.argv[2] === 'upsert') {
 
     // uncomment after placing your favicon in /public
     //app.use(favicon(__dirname + '/public/favicon.ico'));
-    app.use(logger('dev'));
+    app.use(function(req, res, next) {
+        logger.info({req:req});
+        next();
+    });
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: false }));
     app.use(cookieParser());
