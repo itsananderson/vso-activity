@@ -1,7 +1,8 @@
 var fs = require('fs'),
     path = require('path'),
     api = require('./lib/vso-api'),
-    repo = require('./lib/repo');
+    repo = require('./lib/repo'),
+    config = require('./lib/config');
 
 var express = require('express');
 var bunyan = require('bunyan');
@@ -26,22 +27,16 @@ var logger = bunyan.createLogger({
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-var username = process.env.VSOUserName;
-var password = process.env.VSOPassword;
-var vsoUrl = process.env.VSOUrl; // https://foo.visualstudio.com/DefaultCollection/
-var tokens = process.env.AUTH_TOKENS ? process.env.AUTH_TOKENS.split(',') : [];
-var basePath = path.join(__dirname, 'workspace');
-
 var app = express();
 
 var activity = [];
 
 function updateActivity() {
-    api.repositories(vsoUrl, username, password, function(err, repositories) {
+    api.repositories(config.vsoUrl, config.username, config.password, function(err, repositories) {
         if (err) throw err;
 
         function upsert(cb) {
-            repo.upsert(repositories, username, password, basePath, logger, function (err) {
+            repo.upsert(repositories, config.username, config.password, config.basePath, logger, function (err) {
                 if (err) cb(err);
                 logger.info("Done upserting");
                 cb(null);
@@ -50,7 +45,7 @@ function updateActivity() {
 
         function commits(err) {
             if (err) throw err;
-            repo.commits(repositories, basePath, logger, function(err, branches) {
+            repo.commits(repositories, config.basePath, logger, function(err, branches) {
                 if (err) throw err;
                 activity = branches;
             });
@@ -64,22 +59,21 @@ function updateActivity() {
 
 updateActivity();
 
-var updateInterval = (parseInt(process.env.UPDATE_INTERVAL) || 5 ) * 60 * 1000;
-logger.info(updateInterval);
-setInterval(updateActivity, updateInterval);
+logger.info(config.updateInterval);
+setInterval(updateActivity, config.updateInterval);
 
 if (process.argv[2] === 'upsert') {
-    api.repositories(vsoUrl, username, password, function(err, repositories) {
+    api.repositories(config.vsoUrl, config.username, config.password, function(err, repositories) {
         if (err) throw err;
-        repo.upsert(repositories, username, password, basePath, function (err) {
+        repo.upsert(repositories, config.username, config.password, config.basePath, function (err) {
             if (err) throw err;
             logger.info("Done upserting");
         });
     });
 } else if (process.argv[2] === 'branches') {
-    api.repositories(vsoUrl, username, password, function(err, repositories) {
+    api.repositories(config.vsoUrl, config.username, config.password, function(err, repositories) {
         if (err) throw err;
-        repo.branches(repositories, basePath, function(err, branches) {
+        repo.branches(repositories, config.basePath, function(err, branches) {
             if (err) throw err;
             logger.info(branches);
         });
@@ -103,7 +97,7 @@ if (process.argv[2] === 'upsert') {
 
     app.get('/api/get-activity', function(req, res) {
         var token = req.cookies.auth_token || req.headers.auth_token;
-        if (!token || -1 === tokens.indexOf(token)) {
+        if (!token || -1 === config.tokens.indexOf(token)) {
             res.send(401, 'You need to provide an auth token');
         } else {
             res.send(activity);
@@ -111,7 +105,7 @@ if (process.argv[2] === 'upsert') {
     });
 
     app.get('/api/get-vso-url', function(req, res) {
-        res.send({url: vsoUrl});
+        res.send({url: config.vsoUrl});
     });
 
     // catch 404 and forward to error handler
