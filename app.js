@@ -1,4 +1,5 @@
-var fs = require('fs'),
+var _ = require('lodash'),
+    fs = require('fs'),
     path = require('path'),
     api = require('./lib/vso-api'),
     repo = require('./lib/repo'),
@@ -11,7 +12,7 @@ var logger = bunyan.createLogger({
     serializers: bunyan.stdSerializers,
     streams: [
         {
-            level: 'info',
+            level: 'error',
             stream: process.stdout
         },
         {
@@ -82,11 +83,24 @@ if (process.argv[2] === 'upsert') {
     app.use(express.static(path.join(__dirname, 'public')));
 
     app.get('/api/get-activity', function(req, res) {
+        var since = parseInt(req.query.since || (new Date().getTime()/1000) - (60*60*24*7));
+        var author = req.query.author || '';
         var token = req.cookies.auth_token || req.headers.auth_token;
         if (!token || -1 === config.tokens.indexOf(token)) {
             res.send(401, 'You need to provide an auth token');
         } else {
-            res.send(activity);
+            res.send(activity.map(function(repo) {
+                var filteredCommits = _.values(repo.commits).filter(function (commit) {
+                    return -1 !== commit.Author.Email.indexOf(author) && new Date(commit.Author.When).getTime() / 1000 > since
+                });
+                return {
+                    project: repo.project,
+                    repository: repo.repository,
+                    commits: _.zipObject(filteredCommits.map(function(c) { return c.Sha }), filteredCommits)
+                };
+            }).filter(function(repo) {
+                return _.keys(repo.commits).length > 0;
+            }));
         }
     });
 
