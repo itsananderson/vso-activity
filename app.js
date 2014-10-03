@@ -87,7 +87,7 @@ if (process.argv[2] === 'upsert') {
         var author = req.query.author || '';
         var token = req.cookies.auth_token || req.headers.auth_token;
         if (!token || -1 === config.tokens.indexOf(token)) {
-            res.send(401, 'You need to provide an auth token');
+            res.status(401).send('You need to provide an auth token');
         } else {
             res.send(activity.map(function(repo) {
                 var filteredCommits = _.values(repo.commits).filter(function (commit) {
