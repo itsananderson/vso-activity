@@ -13,13 +13,20 @@
             </form>
         </div>
         <div ng-hide="activity.showAuth">
-            <label for="commit-filter">Filter By author or message</label>
-            <input id="commit-filter" type="text" ng-model="activity.filterSvc.filter" ng-model-options="{debounce: 100}" />
+            <form ng-submit="activity.loadActivity(activity.filterString, activity.filterDate)">
+                <label for="commit-filter">Filter by author</label>
+                <input id="commit-filter" type="text" ng-model="activity.filterString" />
+                <br />
+                <label for="time-filter">Filter by date (default 1 week ago)</label>
+                <input type="text" id="time-filter" ng-model="activity.filterDate" />
+                <br />
+                <input type="submit" value="Filter" />
+            </form>
             {{activity.filter}}
             <div ng-repeat="repo in activity.allActivity">
                 <h2>{{repo.project}}/{{repo.repository}}</h2>
                 <ul>
-                    <li ng-repeat="commit in repo.commits | authorFilter">
+                    <li ng-repeat="commit in repo.commits">
                     <a ng-href="{{activity.vsoUrl}}{{repo.project}}/_git/{{repo.repository}}/commit/{{commit.Sha}}">{{commit.MessageShort}}</a>
                     </li>
                 </ul>

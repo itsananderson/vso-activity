@@ -5,8 +5,11 @@ angular.module('vso-activity', ['ngCookies'])
                 return result.data.url;
             });
         };
-        this.getActivity = function getActivity() {
-            return $http.get('/api/get-activity/').then(function(result) {
+        this.getActivity = function getActivity(author, since) {
+            author = author || '';
+            var url = '/api/get-activity?author=' + author;
+            if (since) url += '&since=' + encodeURI(moment(since, 'MM DD YYYY').unix());
+            return $http.get(url).then(function(result) {
                 return result.data;
             });
         };
@@ -14,35 +17,25 @@ angular.module('vso-activity', ['ngCookies'])
     .service('authorFilterSvc', function() {
         this.filter = '';
     })
-    .filter('authorFilter', function(authorFilterSvc) {
-        return function(commits) {
-            var lowerSearch = authorFilterSvc.filter.toLowerCase();
-            return Object.keys(commits).map(function(key) {
-                return commits[key];
-            }).filter(function(commit) {
-                return -1 != commit.Author.Email.toLowerCase().indexOf(lowerSearch)
-                    || -1 != commit.Author.Name.toLowerCase().indexOf(lowerSearch)
-                    || -1 != commit.MessageShort.toLowerCase().indexOf(lowerSearch);
-            });
-        };
-    })
     .controller('activityCtrl', function(authorFilterSvc, activitySvc, $cookies) {
         var vm = this;
         vm.allActivity = [];
-        vm.filterSvc = authorFilterSvc;
+        vm.filterString = '';
+        var date = moment().subtract(7, 'days');
+        vm.filterDate = date.format('M/D/YYYY');
         vm.auth = function(token) {
             $cookies.auth_token = token;
             vm.showAuth = false;
-            loadActivity();
+            vm.loadActivity(vm.filterString, vm.filterDate);
         };
         vm.showAuth = !$cookies.auth_token;
         activitySvc.getVsoUrl().then(function(url) { vm.vsoUrl = url; }).catch(function() {});
 
-        function loadActivity() {
-            activitySvc.getActivity().then(function(activity) { vm.allActivity = activity }).catch(function() {});
-        }
+        vm.loadActivity = function loadActivity(author, since) {
+            activitySvc.getActivity(author, since).then(function(activity) { vm.allActivity = activity }).catch(function() {});
+        };
 
         if (!vm.showAuth) {
-            loadActivity();
+            vm.loadActivity(vm.filterString, vm.filterDate);
         }
     });
