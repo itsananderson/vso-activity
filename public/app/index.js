@@ -29,10 +29,14 @@ angular.module('vso-activity', ['ngCookies'])
             vm.loadActivity(vm.filterString, vm.filterDate);
         };
         vm.showAuth = !$cookies.auth_token;
-        activitySvc.getVsoUrl().then(function(url) { vm.vsoUrl = url; }).catch(function() {});
+        activitySvc.getVsoUrl().then(function(url) { vm.vsoUrl = url; }, function(err) {
+            throw err;
+        });
 
         vm.loadActivity = function loadActivity(author, since) {
-            activitySvc.getActivity(author, since).then(function(activity) { vm.allActivity = activity }).catch(function() {});
+            activitySvc.getActivity(author, since).then(function(activity) { vm.allActivity = activity }, function(err) {
+                throw err;
+            });
         };
 
         if (!vm.showAuth) {
