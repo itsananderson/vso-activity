@@ -1,30 +1,12 @@
 var _ = require('lodash'),
     fs = require('fs'),
     path = require('path'),
-    api = require('./lib/vso-api'),
-    repo = require('./lib/repo'),
-    config = require('./lib/config');
+    cp = require('child_process'),
+    config = require('./lib/config'),
+    logger = require('./lib/logger'),
+    updateLoop = cp.fork(path.join(__dirname, 'lib', 'update-loop.js'));
 
 var express = require('express');
-var bunyan = require('bunyan');
-var logger = bunyan.createLogger({
-    name: 'vso-activity',
-    serializers: bunyan.stdSerializers,
-    streams: [
-        {
-            level: 'error',
-            stream: process.stdout
-        },
-        {
-            level: 'error',
-            path: path.join(__dirname, 'error.log')
-        },
-        {
-            level: 'info',
-            path: path.join(__dirname, 'info.log')
-        }
-    ]
-});
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
@@ -32,40 +14,16 @@ var app = express();
 
 var activity = [];
 
-function updateActivity() {
-    api.repositories(config.vsoUrl, config.username, config.password, function(err, repositories) {
-        if (err) throw err;
-
-        function upsert(cb) {
-            repo.upsert(repositories, config.username, config.password, config.basePath, logger, function (err) {
-                if (err) cb(err);
-                logger.info("Done upserting");
-                cb(null);
-            });
-        }
-
-        function commits(err) {
-            if (err) throw err;
-            repo.commits(repositories, config.basePath, logger, function(err, branches) {
-                if (err) throw err;
-                activity = branches;
-            });
-        }
-
-        config.skipUpsert ? commits() : upsert(commits);
-    });
-}
+updateLoop.on('message', function(message) {
+    console.log(message);
+    activity = message.activity;
+});
 
 if (process.argv[2] === 'upsert') {
     require('./upsert')();
 } else if (process.argv[2] === 'branches') {
     require('./branches')();
 } else {
-
-    updateActivity();
-
-    logger.info(config.updateInterval);
-    setInterval(updateActivity, config.updateInterval);
 
     // view engine setup
     app.set('views', path.join(__dirname, 'views'));
