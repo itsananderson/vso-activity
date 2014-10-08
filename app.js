@@ -4,15 +4,12 @@ var _ = require('lodash'),
     cp = require('child_process'),
     config = require('./lib/config'),
     logger = require('./lib/logger'),
-    updateLoop = cp.fork(path.join(__dirname, 'lib', 'update-loop.js'));
-
-var express = require('express');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-
-var app = express();
-
-var activity = [];
+    updateLoop = cp.fork(path.join(__dirname, 'lib', 'update-loop.js')),
+    express = require('express'),
+    cookieParser = require('cookie-parser'),
+    bodyParser = require('body-parser'),
+    app = express(),
+    activity = [];
 
 updateLoop.on('message', function(message) {
     console.log(message);
@@ -20,9 +17,9 @@ updateLoop.on('message', function(message) {
 });
 
 if (process.argv[2] === 'upsert') {
-    require('./upsert')();
+    require('./tasks/upsert')();
 } else if (process.argv[2] === 'branches') {
-    require('./branches')();
+    require('./tasks/branches')();
 } else {
 
     // view engine setup
